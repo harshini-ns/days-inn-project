@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Card, Row, Col, Image, Navbar, Nav } from 'react-bootstrap';
+import { Container, Card, Row, Col, Image, Navbar, Nav, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
     const [userDetails, setUserDetails] = useState({
@@ -11,6 +12,7 @@ export default function Profile() {
     });
 
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -37,6 +39,11 @@ export default function Profile() {
         fetchUserDetails();
     }, []);
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');  // Remove the token from localStorage
+        navigate('/');  // Redirect to the login page
+    };
+
     if (error) {
         return <p>{error}</p>;
     }
@@ -52,6 +59,7 @@ export default function Profile() {
                             <Nav.Link href="/hotels">Hotels</Nav.Link>
                             <Nav.Link href="/yourbookings">Your Bookings</Nav.Link>
                             <Nav.Link href="/profile">Profile</Nav.Link>
+
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
@@ -61,7 +69,7 @@ export default function Profile() {
                 <Row className="justify-content-center">
                     <Col md={6}>
                         <Card>
-                            <Card.Header> Your Profile Details </Card.Header>
+                            <Card.Header>Your Profile Details</Card.Header>
                             <Card.Body>
                                 <Row>
                                     <Col md={4} className="text-center">
@@ -74,14 +82,13 @@ export default function Profile() {
                                         />
                                     </Col>
                                     <Col md={8}>
-                                        <Card.Text><strong> Email id :</strong>  {userDetails.email}</Card.Text>
-                                        <Card.Text>
-                                            <strong>User ID:</strong> {userDetails.user_id}
-                                        </Card.Text>
-                                        <Card.Text>
-                                            <strong>Phone Number:</strong> {userDetails.phone_number}
-                                        </Card.Text>
+                                        <Card.Text><strong>Email id:</strong> {userDetails.email}</Card.Text>
+                                        <Card.Text><strong>User ID:</strong> {userDetails.user_id}</Card.Text>
+                                        <Card.Text><strong>Phone Number:</strong> {userDetails.phone_number}</Card.Text>
                                     </Col>
+                                    <Button variant="primary" onClick={handleLogout}>
+                                        Logout
+                                    </Button>
                                 </Row>
                             </Card.Body>
                         </Card>
