@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase'; // Correct Firebase auth import
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; // Use named imports for Google Auth
 
 export default function LogIn() {
     const [email, setEmail] = useState("");
@@ -9,41 +11,58 @@ export default function LogIn() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Regular email/password login handler
     const handleLogIn = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const loginData = {
-            email: email,
-            password: password
-        }
+        const loginData = { email, password };
+
         try {
             const response = await axios.post("https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/login", loginData);
-            console.log('Response:', response.data);
             const token = response.data.token;
-            console.log('Token stored:', token)
+
             if (token) {
                 localStorage.setItem('token', token);
-                alert("Log In is successfull");
-                navigate("/hotels")
+                alert("Log In is successful");
+                navigate("/hotels");
+            } else {
+                alert("Failed to store token.");
             }
-            else {
-                alert("failed in storing token");
-            }
-
-        }
-        catch (error) {
-            console.error('there is an error', error);
+        } catch (error) {
+            console.error('There was an error', error);
             alert("Log in failed");
         } finally {
             setLoading(false);
         }
     };
 
+    // Google login handler
+    const handleGoogleLogin = async () => {
+        const provider = new GoogleAuthProvider();
+
+        try {
+            const result = await signInWithPopup(auth, provider); // Sign in with Google
+            const idToken = await result.user.getIdToken(); // Get the ID token
+
+            // Send the token to the backend for verification
+            const response = await axios.post("https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/loginWithGoogle", { idToken });
+
+            const data = response.data;
+            if (data.token) {
+                localStorage.setItem("token", data.token); // Store the JWT token from the backend
+                alert("Google Login successful");
+                navigate("/hotels"); // Redirect to the hotels page
+            }
+        } catch (error) {
+            console.error("Error logging in with Google:", error);
+            alert("Google Login failed");
+        }
+    };
+
     const gotoSignUp = () => {
         navigate("/signup");
-    }
-
+    };
 
     const backgroundStyle = {
         backgroundImage: "url('https://www.cvent.com/sites/default/files/image/2021-10/hotel%20room%20with%20beachfront%20view.jpg')",
@@ -61,6 +80,8 @@ export default function LogIn() {
                     <Col xs={12} md={8} lg={6} xl={4}>
                         <h1 className="text-center mb-4">DaysInn</h1>
                         <h2 className="text-center mb-4">Log In</h2>
+
+                        {/* Form for email and password login */}
                         <Form onSubmit={handleLogIn}>
                             <Form.Group className="mb-3" controlId="formEmail">
                                 <Form.Control
@@ -83,8 +104,12 @@ export default function LogIn() {
                             <Button variant="primary" type="submit" className="w-100" disabled={loading}>
                                 {loading ? 'Logging in...' : 'Log In'}
                             </Button>
-
                         </Form>
+
+                        {/* Google Login Button */}
+                        <Button variant="outline-primary" className="w-100 mt-3" onClick={handleGoogleLogin}>
+                            Log In with Google
+                        </Button>
 
                         <p className="mt-4 text-center">
                             Don't have an account?{" "}
@@ -98,4 +123,3 @@ export default function LogIn() {
         </div>
     );
 }
-
