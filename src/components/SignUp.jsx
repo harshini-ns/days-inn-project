@@ -23,7 +23,7 @@ export default function SignUp() {
         };
 
         try {
-            const response = await axios.post("https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/signup", userData);
+            const response = await axios.post("https://daysinn-private.vercel.app/signup", userData);
             console.log('Response:', response.data);
             alert("Sign up is successful");
             navigate("/");

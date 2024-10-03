@@ -22,7 +22,7 @@ export default function BookNowModal({ show, handleClose, hotelId, hotelName }) 
 
         try {
             const response = await axios.post(
-                'https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/bookings',
+                'https://daysinn-private.vercel.app/bookings',
                 {
                     hotel_id: hotelId,
                     start_date: startDate,

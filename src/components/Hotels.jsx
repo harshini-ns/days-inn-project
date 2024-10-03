@@ -23,7 +23,7 @@ export default function Hotels() {
     };
 
     useEffect(() => {
-        axios.get('https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/hotels')
+        axios.get('https://daysinn-private.vercel.app/hotels')
             .then(async (response) => {
                 const fetchedHotels = response.data.hotels || [];
                 const hotelsWithWeather = await Promise.all(

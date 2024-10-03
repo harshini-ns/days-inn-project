@@ -19,7 +19,7 @@ export default function YourBookings() {
 
             try {
                 const response = await axios.get(
-                    'https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/bookings',
+                    'https://daysinn-private.vercel.app/bookings',
                     {
                         headers: {
                             Authorization: token,
@@ -46,7 +46,7 @@ export default function YourBookings() {
 
         try {
             await axios.delete(
-                `https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/bookings/${booking_id}`,
+                `https://daysinn-private.vercel.app/bookings/${booking_id}`,
                 {
                     headers: {
                         Authorization: token,

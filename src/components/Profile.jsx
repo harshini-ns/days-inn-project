@@ -26,7 +26,7 @@ export default function Profile() {
             }
 
             try {
-                const response = await axios.get('https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/user/profile', {
+                const response = await axios.get('https://daysinn-private.vercel.app/user/profile', {
                     headers: {
                         Authorization: token,
                     },

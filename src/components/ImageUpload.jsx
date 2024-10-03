@@ -39,7 +39,7 @@ const ImageUpload = ({ onUpload, userDetails = {} }) => {
     const handleImageUpload = async (url) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch('https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/user/updateProfilePic', {
+            await axios.patch('https://daysinn-private.vercel.app/user/updateProfilePic', {
                 user_id: userDetails.user_id,
                 profile_picture: url
             }, {

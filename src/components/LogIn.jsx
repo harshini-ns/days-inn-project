@@ -19,7 +19,7 @@ export default function LogIn() {
         const loginData = { email, password };
 
         try {
-            const response = await axios.post("https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/login", loginData);
+            const response = await axios.post("https://daysinn-private.vercel.app/login", loginData);
             const token = response.data.token;
 
             if (token) {
@@ -46,7 +46,7 @@ export default function LogIn() {
             const idToken = await result.user.getIdToken(); // Get the ID token
 
             // Send the token to the backend for verification
-            const response = await axios.post("https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/loginWithGoogle", { idToken });
+            const response = await axios.post("https://daysinn-private.vercel.app/loginWithGoogle", { idToken });
 
             const data = response.data;
             if (data.token) {
