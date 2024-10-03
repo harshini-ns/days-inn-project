@@ -9,12 +9,33 @@ export default function Hotels() {
     const [selectedHotel, setSelectedHotel] = useState(null);
     const [token, setToken] = useState('');
 
+    const fetchWeather = async (address) => {
+        if (!address) return null; // Return null if no valid address
+
+        try {
+            const weatherUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${address}/today?key=HKS9JY98PPEHB6ZTAAMBXJJYZ`;
+            const response = await axios.get(weatherUrl);
+            return response.data.currentConditions || null;
+        } catch (error) {
+            console.error("Error fetching weather data:", error);
+            return null; // Return null on error
+        }
+    };
+
     useEffect(() => {
         axios.get('https://886e5827-4483-41a5-85e3-0d1270999a8e-00-2ioif0yd5eyfy.pike.replit.dev/hotels')
-            .then(response => {
-                console.log(response.data.hotels);
+            .then(async (response) => {
                 const fetchedHotels = response.data.hotels || [];
-                setHotels(fetchedHotels);
+                const hotelsWithWeather = await Promise.all(
+                    fetchedHotels.map(async (hotel) => {
+                        if (hotel.address) {
+                            const weather = await fetchWeather(hotel.address);
+                            return { ...hotel, weather };
+                        }
+                        return { ...hotel, weather: null }; // No weather for invalid addresses
+                    })
+                );
+                setHotels(hotelsWithWeather);
             })
             .catch(error => {
                 console.error("There was an error fetching the hotel data!", error);
@@ -62,6 +83,17 @@ export default function Hotels() {
                                 <Card.Body className="d-flex flex-column">
                                     <Card.Title>{hotel.name}</Card.Title>
                                     <Card.Text>{hotel.address}</Card.Text>
+                                    <Card.Text>
+                                        {/* Display weather information */}
+                                        {hotel.weather ? (
+                                            <>
+                                                <strong>Current Temperature:</strong> {hotel.weather.temp}°C<br />
+                                                <strong>Conditions:</strong> {hotel.weather.conditions}
+                                            </>
+                                        ) : (
+                                            "Weather information not available"
+                                        )}
+                                    </Card.Text>
                                     <Button
                                         variant="primary"
                                         className="mt-auto"
