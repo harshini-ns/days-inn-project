@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Navbar, Nav, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import BookNowModal from './BookNowModal';
 
 export default function Hotels() {
     const [hotels, setHotels] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedHotel, setSelectedHotel] = useState(null);
-    const [token, setToken] = useState('');
+    const navigate = useNavigate();
 
     const fetchWeather = async (address) => {
-        if (!address) return null; // Return null if no valid address
+        if (!address) return null;
 
         try {
             const weatherUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${address}/today?key=HKS9JY98PPEHB6ZTAAMBXJJYZ`;
@@ -18,7 +19,7 @@ export default function Hotels() {
             return response.data.currentConditions || null;
         } catch (error) {
             console.error("Error fetching weather data:", error);
-            return null; // Return null on error
+            return null;
         }
     };
 
@@ -32,7 +33,7 @@ export default function Hotels() {
                             const weather = await fetchWeather(hotel.address);
                             return { ...hotel, weather };
                         }
-                        return { ...hotel, weather: null }; // No weather for invalid addresses
+                        return { ...hotel, weather: null };
                     })
                 );
                 setHotels(hotelsWithWeather);
@@ -52,6 +53,13 @@ export default function Hotels() {
         setSelectedHotel(null);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/hotels');
+    };
+
+    const isUserLoggedIn = !!localStorage.getItem('token');
+
     return (
         <>
             <Navbar bg="dark" variant="dark" expand="lg">
@@ -62,7 +70,18 @@ export default function Hotels() {
                         <Nav className="ml-auto">
                             <Nav.Link href="/hotels">Hotels</Nav.Link>
                             <Nav.Link href="/yourbookings">Your Bookings</Nav.Link>
-                            <Nav.Link href="/profile">Profile</Nav.Link>
+                            {isUserLoggedIn ? (
+                                <>
+                                    <Nav.Link href="/profile">Profile</Nav.Link>
+                                    <Button variant="outline-light" onClick={handleLogout} className="ms-2">
+                                        Logout
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button variant="outline-light" onClick={() => navigate('/login')}>
+                                    Login
+                                </Button>
+                            )}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
@@ -84,7 +103,6 @@ export default function Hotels() {
                                     <Card.Title>{hotel.name}</Card.Title>
                                     <Card.Text>{hotel.address}</Card.Text>
                                     <Card.Text>
-                                        {/* Display weather information */}
                                         {hotel.weather ? (
                                             <>
                                                 <strong>Current Temperature:</strong> {hotel.weather.temp}°C<br />
@@ -113,7 +131,6 @@ export default function Hotels() {
                     show={showModal}
                     handleClose={handleCloseModal}
                     hotelId={selectedHotel.hotel_id}
-                    token={token}
                     hotelName={selectedHotel.name}
                 />
             )}

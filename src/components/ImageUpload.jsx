@@ -3,6 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase';
 import axios from 'axios';
 import './ImageUpload.css'; // CSS file for styling
+import { BEDomain } from "../constants"
 
 const ImageUpload = ({ onUpload, userDetails = {} }) => {
     const [imagePreview, setImagePreview] = useState(null);
@@ -39,7 +40,7 @@ const ImageUpload = ({ onUpload, userDetails = {} }) => {
     const handleImageUpload = async (url) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch('https://daysinn-private.vercel.app/user/updateProfilePic', {
+            await axios.patch(BEDomain + '/user/updateProfilePic', {
                 user_id: userDetails.user_id,
                 profile_picture: url
             }, {

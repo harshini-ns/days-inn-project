@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
+import { BEDomain } from '../constants';
 
 export default function BookNowModal({ show, handleClose, hotelId, hotelName }) {
     const [startDate, setStartDate] = useState('');
@@ -22,7 +23,7 @@ export default function BookNowModal({ show, handleClose, hotelId, hotelName }) 
 
         try {
             const response = await axios.post(
-                'https://daysinn-private.vercel.app/bookings',
+                BEDomain + '/bookings',
                 {
                     hotel_id: hotelId,
                     start_date: startDate,

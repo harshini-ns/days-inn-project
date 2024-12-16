@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Card, Row, Col, Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import ImageUpload from './ImageUpload';  // Import the ImageUpload component
+import { BEDomain } from '../constants';
 
 export default function Profile() {
     const [userDetails, setUserDetails] = useState({
@@ -26,15 +27,15 @@ export default function Profile() {
             }
 
             try {
-                const response = await axios.get('https://daysinn-private.vercel.app/user/profile', {
+                const response = await axios.get(BEDomain + '/user/profile', {
                     headers: {
                         Authorization: token,
                     },
                 });
-                if (response.data && response.data.profile_picture) {
+                if (response.data) {
                     setUserDetails({
                         user_id: response.data.user_id,
-                        email: response.data.email,
+                        email: localStorage.getItem('email'),
                         phone_number: response.data.phone_number,
                         profile_picture: response.data.profile_picture, // Set the profile picture here
                     });
