@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Navbar, Nav, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UpdateBookingModal from './UpdateBookingModal';
+import { BEDomain } from '../constants';
 
 export default function YourBookings() {
     const [bookings, setBookings] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchBookings = async () => {
             const token = localStorage.getItem('token');
+
 
             if (!token) {
                 alert('No authentication token found. Please log in.');
@@ -19,7 +23,7 @@ export default function YourBookings() {
 
             try {
                 const response = await axios.get(
-                    'https://daysinn-private.vercel.app/bookings',
+                    BEDomain + '/bookings',
                     {
                         headers: {
                             Authorization: token,
@@ -46,14 +50,14 @@ export default function YourBookings() {
 
         try {
             await axios.delete(
-                `https://daysinn-private.vercel.app/bookings/${booking_id}`,
+                BEDomain + `/bookings/${booking_id}`,
                 {
                     headers: {
                         Authorization: token,
+
                     },
                 }
             );
-
 
             setBookings((prevBookings) =>
                 prevBookings.filter((booking) => booking.booking_id !== booking_id)
@@ -74,6 +78,8 @@ export default function YourBookings() {
         );
     };
 
+    const isUserLoggedIn = !!localStorage.getItem('token');
+
     return (
         <div>
             <Navbar bg="dark" variant="dark" expand="lg">
@@ -84,7 +90,16 @@ export default function YourBookings() {
                         <Nav className="ml-auto">
                             <Nav.Link href="/hotels">Hotels</Nav.Link>
                             <Nav.Link href="/yourbookings">Your Bookings</Nav.Link>
-                            <Nav.Link href="/profile">Profile</Nav.Link>
+                            {isUserLoggedIn ? (
+                                <Nav.Link href="/profile">Profile</Nav.Link>
+                            ) : (
+                                <Button
+                                    variant="outline-light"
+                                    onClick={() => navigate('/login')}
+                                >
+                                    Login
+                                </Button>
+                            )}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

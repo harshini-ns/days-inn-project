@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase'; // Correct Firebase auth import
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; // Use named imports for Google Auth
+import { auth } from '../firebase';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import { BEDomain } from "../constants"
 
 export default function LogIn() {
     const [email, setEmail] = useState("");
@@ -19,11 +20,17 @@ export default function LogIn() {
         const loginData = { email, password };
 
         try {
-            const response = await axios.post("https://daysinn-private.vercel.app/login", loginData);
-            const token = response.data.token;
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const token = await userCredential.user.getIdToken();
+            const userID = userCredential.user.uid;
+
+            // const response = await axios.post("https://daysinn-private.vercel.app/login", loginData);
+            // const token = response.data.token;
 
             if (token) {
                 localStorage.setItem('token', token);
+                localStorage.setItem('userID', userID);
+                localStorage.setItem('email', email);
                 alert("Log In is successful");
                 navigate("/hotels");
             } else {
@@ -44,13 +51,17 @@ export default function LogIn() {
         try {
             const result = await signInWithPopup(auth, provider); // Sign in with Google
             const idToken = await result.user.getIdToken(); // Get the ID token
+            const userID = result.user.uid;
+            const email = result.user.email;
 
             // Send the token to the backend for verification
-            const response = await axios.post("https://daysinn-private.vercel.app/loginWithGoogle", { idToken });
+            const response = await axios.post(BEDomain + "/loginWithGoogle", { idToken, userID });
 
             const data = response.data;
             if (data.token) {
                 localStorage.setItem("token", data.token); // Store the JWT token from the backend
+                localStorage.setItem('userID', userID);
+                localStorage.setItem('email', email);
                 alert("Google Login successful");
                 navigate("/hotels"); // Redirect to the hotels page
             }

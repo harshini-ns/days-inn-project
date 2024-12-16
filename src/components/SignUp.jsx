@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, storage } from "../firebase";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { BEDomain } from "../constants"
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [profilePicture, setProfilePicture] = useState("");
+    const [profilePicture, setProfilePicture] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -15,29 +19,42 @@ export default function SignUp() {
         e.preventDefault();
         setLoading(true);
 
-        const userData = {
-            email: email,
-            password: password,
-            phone_number: phoneNumber,
-            profile_picture: profilePicture
-        };
-
         try {
-            const response = await axios.post("https://daysinn-private.vercel.app/signup", userData);
-            console.log('Response:', response.data);
-            alert("Sign up is successful");
-            navigate("/");
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const firebaseUser = userCredential.user;
+
+
+            let photoURL = null;
+            if (profilePicture) {
+                const file = profilePicture[0];
+                const storageRef = ref(storage, `profile_pictures/${firebaseUser.uid}`);
+                await uploadBytes(storageRef, file);
+                photoURL = await getDownloadURL(storageRef);
+                await updateProfile(firebaseUser, { photoURL });
+            }
+
+
+            const userData = {
+                user_id: firebaseUser.uid,
+                phone_number: phoneNumber,
+                profile_picture: photoURL, // Save the download URL in the DB
+            };
+
+            await axios.post(BEDomain + "/signup", userData);
+
+            alert("Sign up is successful!");
+            navigate("/login");
         } catch (error) {
-            console.error('There was an error!', error);
-            alert("Sign up failed");
+            console.error("Error during sign-up:", error.message);
+            alert("Sign up failed. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
     const gotoLogin = () => {
-        navigate("/");
-    }
+        navigate("/login");
+    };
 
     const backgroundStyle = {
         backgroundImage: 'url("https://sc04.alicdn.com/kf/H68b20e649a7049b08d414129a763ab95G/229924461/H68b20e649a7049b08d414129a763ab95G.jpeg")',
@@ -54,7 +71,7 @@ export default function SignUp() {
                 <Row className="justify-content-center w-100">
                     <Col xs={12} md={6} lg={4}>
                         <h1 className="text-center mb-4">DaysInn</h1>
-                        <h1 className="text-center mb-4"> Book your Inns now ! </h1>
+                        <h1 className="text-center mb-4">Book your Inns now!</h1>
                         <h2 className="text-center mb-4">Sign Up</h2>
                         <Form onSubmit={handleSignUp}>
                             <Form.Group className="mb-3" controlId="formEmail">
@@ -87,18 +104,17 @@ export default function SignUp() {
                                 <Form.Control
                                     onChange={(e) => setProfilePicture(e.target.files)}
                                     type="file"
-                                    placeholder="upload picture"
+                                    accept="image/*"
                                 />
                             </Form.Group>
 
-
                             <Button variant="primary" type="submit" className="w-100" disabled={loading}>
-                                {loading ? 'Signing Up...' : 'Sign Up'}
+                                {loading ? "Signing Up..." : "Sign Up"}
                             </Button>
                         </Form>
 
                         <p className="mt-4 text-center">
-                            Already have an account? {""}
+                            Already have an account?{" "}
                             <Button variant="outline-primary" className="rounded-pill ml-2" onClick={gotoLogin}>
                                 Log in
                             </Button>

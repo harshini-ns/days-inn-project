@@ -10,11 +10,12 @@ export default function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<LogIn />} />
+                <Route path="/" element={<Hotels />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/hotels" element={<Hotels />} />
                 <Route path="/yourbookings" element={<YourBookings />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/login" element={<LogIn />} />
 
             </Routes>
         </Router>
